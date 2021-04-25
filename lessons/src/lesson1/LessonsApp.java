@@ -7,9 +7,9 @@ public class LessonsApp {
 
         ObstacleCourse[] obstacleCourses = {
                 new Track(300),
-                new Wall(3),
+                new Wall(5),
                 new Track(200),
-                new Wall(5)
+                new Wall(3)
         };
 
         Participant[] participants = {
@@ -21,9 +21,9 @@ public class LessonsApp {
         for (ObstacleCourse obstacleCourse : obstacleCourses) {
             obstacleCourse.info();
 
-            for (Object participant : participants) {
-//                (Participant) participant.run(obstacleCourse);
-               // System.out.println((Human) participant.);
+            for (Participant participant : participants) {
+                participant.run(obstacleCourse);
+                participant.jump(obstacleCourse);
             }
         }
 

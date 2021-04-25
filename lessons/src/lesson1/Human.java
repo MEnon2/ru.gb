@@ -10,17 +10,8 @@ public class Human implements Actions {
         this.maxheight = maxheight;
     }
 
-    public int getMaxlength() {
-        return maxlength;
-    }
-
-    public int getMaxheight() {
-        return maxheight;
-    }
-
-    @Override
+     @Override
     public boolean run(int trackLenth) {
-
         if (trackLenth <= this.maxlength) {
             System.out.println("Human run");
             return true;
@@ -32,7 +23,6 @@ public class Human implements Actions {
 
     @Override
     public boolean jump(int wallHeight) {
-
         if (wallHeight <= this.maxheight) {
             System.out.println("Human jump");
             return true;

@@ -1,67 +1,42 @@
 package lesson1;
 
 public class Participant {
-    boolean canParticipate;
-    private int maxlength;
-    private int maxheight;
+    private boolean canParticipate;
+    private Object participant;
 
-    public Participant(Human participant) {
-        this.maxheight = participant.getMaxheight();
-        this.maxlength = participant.getMaxlength();
+    public Participant(Object participant) {
         this.canParticipate = true;
-    }
-
-    public Participant(Cat participant) {
-        this.maxheight = participant.getMaxheight();
-        this.maxlength = participant.getMaxlength();
-        this.canParticipate = true;
-    }
-
-    public Participant(Robot participant) {
-        this.maxheight = participant.getMaxheight();
-        this.maxlength = participant.getMaxlength();
-        this.canParticipate = true;
-    }
-
-    public boolean isCanParticipate() {
-        return canParticipate;
-    }
-
-    public void setCanParticipate(boolean canParticipate) {
-        this.canParticipate = canParticipate;
-    }
-
-    public Participant(boolean canParticipate, int maxlength, int maxheight) {
-        this.canParticipate = canParticipate;
-        this.maxlength = maxlength;
-        this.maxheight = maxheight;
+        this.participant = participant;
     }
 
     public void run(ObstacleCourse obstacleCourse) {
         int trackLenth = obstacleCourse.getLength();
-        if (trackLenth == 0) {
+        if (trackLenth == 0 || !this.canParticipate) {
             return;
         }
 
-//        if (distanceLenth <= this.maxlength) {
-//            System.out.println("Robot run");
-//        } else {
-//            System.out.println("Robot not run. Robot is eliminated");
-//            this.setCanParticipate(false);
-//        }
+        if (this.participant instanceof Human) {
+            this.canParticipate = ((Human) this.participant).run(trackLenth);
+        } else if (this.participant instanceof Cat) {
+            this.canParticipate = ((Cat) this.participant).run(trackLenth);
+        } else if (this.participant instanceof Robot) {
+            this.canParticipate = ((Robot) this.participant).run(trackLenth);
+        }
+
     }
 
     public void jump(ObstacleCourse obstacleCourse) {
         int wallHeight = obstacleCourse.getHeight();
-        if (wallHeight == 0) {
+        if (wallHeight == 0 || !this.canParticipate) {
             return;
         }
 
-//        if (distanceHeight <= this.maxheight) {
-//            System.out.println("Robot jump");
-//        } else {
-//            System.out.println("Robot not jump. Robot is eliminated");
-//            this.setCanParticipate(false);
-//        }
+        if (this.participant instanceof Human) {
+            this.canParticipate = ((Human) this.participant).jump(wallHeight);
+        } else if (this.participant instanceof Cat) {
+            this.canParticipate = ((Cat) this.participant).jump(wallHeight);
+        } else if (this.participant instanceof Robot) {
+            this.canParticipate = ((Robot) this.participant).jump(wallHeight);
+        }
     }
 }

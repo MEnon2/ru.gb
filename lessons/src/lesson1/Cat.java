@@ -8,20 +8,10 @@ public class Cat implements Actions {
     public Cat(int maxlength, int maxheight) {
         this.maxlength = maxlength;
         this.maxheight = maxheight;
-
-    }
-
-    public int getMaxlength() {
-        return maxlength;
-    }
-
-    public int getMaxheight() {
-        return maxheight;
     }
 
     @Override
     public boolean run(int trackLenth) {
-
         if (trackLenth <= this.maxlength) {
             System.out.println("Cat run");
             return true;
@@ -33,7 +23,6 @@ public class Cat implements Actions {
 
     @Override
     public boolean jump(int wallHeight) {
-
         if (wallHeight <= this.maxheight) {
             System.out.println("Cat jump");
             return true;

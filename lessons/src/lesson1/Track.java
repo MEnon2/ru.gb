@@ -6,5 +6,4 @@ public class Track extends ObstacleCourse{
         super(length, 0, "Track");
     }
 
-
 }

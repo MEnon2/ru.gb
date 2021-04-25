@@ -9,34 +9,24 @@ public class Robot implements Actions {
         this.maxheight = maxheight;
     }
 
-    public int getMaxlength() {
-        return maxlength;
-    }
-
-    public int getMaxheight() {
-        return maxheight;
-    }
-
     @Override
     public boolean run(int trackLenth) {
-
         if (trackLenth <= this.maxlength) {
             System.out.println("Robot run");
             return true;
         } else {
-            System.out.println("Robot not run. Cat is eliminated");
+            System.out.println("Robot not run. Robot is eliminated");
             return false;
         }
     }
 
     @Override
     public boolean jump(int wallHeight) {
-
         if (wallHeight <= this.maxheight) {
             System.out.println("Robot jump");
             return true;
         } else {
-            System.out.println("Robot not jump. Cat is eliminated");
+            System.out.println("Robot not jump. Robot is eliminated");
             return false;
         }
     }
