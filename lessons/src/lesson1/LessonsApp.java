@@ -12,18 +12,26 @@ public class LessonsApp {
                 new Wall(3)
         };
 
-        Participant[] participants = {
-                new Participant(new Human(500, 3)),
-                new Participant(new Cat(1000, 7)),
-                new Participant(new Robot(200, 0))
+        Actions[] arrayParticipants = {
+                new Human(500, 3),
+                new Cat(1000, 7),
+                new Robot(200, 0)
         };
+
+        Participant[] participants = new Participant[arrayParticipants.length];
+
+        for (int i = 0; i < participants.length; i++) {
+            participants[i] = new Participant(arrayParticipants[i]);
+        }
 
         for (ObstacleCourse obstacleCourse : obstacleCourses) {
             obstacleCourse.info();
 
             for (Participant participant : participants) {
-                participant.run(obstacleCourse);
-                participant.jump(obstacleCourse);
+                if (participant.isCanParticipate()) {
+                    participant.run(obstacleCourse);
+                    participant.jump(obstacleCourse);
+                }
             }
         }
 

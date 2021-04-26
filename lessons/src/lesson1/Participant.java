@@ -2,11 +2,19 @@ package lesson1;
 
 public class Participant {
     private boolean canParticipate;
-    private Object participant;
+    private Actions participant;
 
-    public Participant(Object participant) {
+    public Participant(Actions participant) {
         this.canParticipate = true;
         this.participant = participant;
+    }
+
+    public boolean isCanParticipate() {
+        return canParticipate;
+    }
+
+    public Actions getParticipant() {
+        return participant;
     }
 
     public void run(ObstacleCourse obstacleCourse) {
@@ -15,13 +23,8 @@ public class Participant {
             return;
         }
 
-        if (this.participant instanceof Human) {
-            this.canParticipate = ((Human) this.participant).run(trackLenth);
-        } else if (this.participant instanceof Cat) {
-            this.canParticipate = ((Cat) this.participant).run(trackLenth);
-        } else if (this.participant instanceof Robot) {
-            this.canParticipate = ((Robot) this.participant).run(trackLenth);
-        }
+        Actions participant = this.getParticipant();
+        this.canParticipate = participant.run(trackLenth);
 
     }
 
@@ -31,12 +34,7 @@ public class Participant {
             return;
         }
 
-        if (this.participant instanceof Human) {
-            this.canParticipate = ((Human) this.participant).jump(wallHeight);
-        } else if (this.participant instanceof Cat) {
-            this.canParticipate = ((Cat) this.participant).jump(wallHeight);
-        } else if (this.participant instanceof Robot) {
-            this.canParticipate = ((Robot) this.participant).jump(wallHeight);
-        }
+        Actions participant = this.getParticipant();
+        this.canParticipate = participant.jump(wallHeight);
     }
 }
