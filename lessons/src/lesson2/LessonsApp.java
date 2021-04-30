@@ -4,52 +4,36 @@ import java.util.Arrays;
 
 public class LessonsApp {
 
+    private static int MAX_LENGTH = 4;
+
     public static void main(String[] args) {
-        int sum = 0;
         String[][] myArr = {
                 {"1", "2", "3", "4"},
-                {"q", "8", "9"},
-                {"0", "9", "8", "7"},
+                {"5", "8", "9", "0"},
+                {"0", "6", "6", "7"},
                 {"6", "5", "4", "3"}
         };
-
-
-//        String[][] myArr = {
-//                {"1", "2", "3", "4"},
-//                {"q", "8", "9", "0"},
-//                {"0", "9", "8", "7"},
-//                {"6", "5", "4", "3"}
-//        };
 
         try {
             System.out.printf("Сумма элементов массива равна: %s%n", CalculateSum(myArr));
         } catch (MyArraySizeException mase) {
-            System.out.println("Передан массив отличный от размера: 4 x 4");
+            System.out.printf("Передан массив отличный от размера: 4 x 4 %nСумма массива не рассчитана%n");
         } catch (MyArrayDataException made) {
-            System.out.println("Элемент массива не может быть преобразован");
-        } catch (Exception ex) {
-
+            System.out.println("Сумма массива не рассчитана");
         }
-
     }
 
-    private static String CalculateSum(String[][] arr) throws Exception {
+    private static String CalculateSum(String[][] arr) throws MyArraySizeException, MyArrayDataException {
         int sum = 0;
-        String strInt = "0123456789";
 
-        for (int i = 0; i < 4; i++) {
-            if (arr[i].length != 4) {
-                throw new MyArraySizeException();
-            } else {
-                for (int j = 0; j < arr.length; j++) {
-
-                    if (arr[i][j].length() == 1 && strInt.contains(arr[i][j])) {
-                        sum = sum + Integer.parseInt(arr[i][j]);
-
-                    } else {
-                        throw new MyArrayDataException(i, j);
-                    }
-
+        for (int i = 0; i < MAX_LENGTH; i++) {
+            for (int j = 0; j < MAX_LENGTH; j++) {
+                try {
+                    sum = sum + Integer.parseInt(arr[i][j]);
+                } catch (ArrayIndexOutOfBoundsException nfe) {
+                    throw new MyArraySizeException();
+                } catch (NumberFormatException nfe) {
+                    throw new MyArrayDataException(i, j, arr[i][j]);
                 }
             }
         }
