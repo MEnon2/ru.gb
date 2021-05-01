@@ -1,6 +1,8 @@
 package lesson2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class LessonsApp {
 
@@ -26,12 +28,16 @@ public class LessonsApp {
     private static String CalculateSum(String[][] arr) throws MyArraySizeException, MyArrayDataException {
         int sum = 0;
 
+        if (arr.length != MAX_LENGTH) {
+            throw new MyArraySizeException();
+        }
         for (int i = 0; i < MAX_LENGTH; i++) {
+            if (arr[i].length != MAX_LENGTH) {
+                throw new MyArraySizeException();
+            }
             for (int j = 0; j < MAX_LENGTH; j++) {
                 try {
                     sum = sum + Integer.parseInt(arr[i][j]);
-                } catch (ArrayIndexOutOfBoundsException nfe) {
-                    throw new MyArraySizeException();
                 } catch (NumberFormatException nfe) {
                     throw new MyArrayDataException(i, j, arr[i][j]);
                 }
