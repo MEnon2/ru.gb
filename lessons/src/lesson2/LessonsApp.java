@@ -1,9 +1,5 @@
 package lesson2;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class LessonsApp {
 
     private static int MAX_LENGTH = 4;
