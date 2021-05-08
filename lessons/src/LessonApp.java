@@ -67,5 +67,4 @@ public class LessonApp {
 
         System.out.println(b - a);
     }
-
 }
