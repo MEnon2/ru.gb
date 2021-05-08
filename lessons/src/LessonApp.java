@@ -4,7 +4,6 @@ public class LessonApp {
     static final int size = 10000000;
     static final int h = size / 2;
 
-
     public static void main(String[] args) {
 
         method1();
