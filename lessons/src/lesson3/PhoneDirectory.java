@@ -1,15 +1,13 @@
 package lesson3;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class PhoneDirectory {
 
-    private final HashMap<String, HashSet<String>> phoneDirectory = new HashMap<>();
+    private final Map<String, Set<String>> phoneDirectory = new HashMap<>();
 
     public void add(String name, String phone) {
-        HashSet<String> hs = new HashSet<>();
+        Set<String> hs = new HashSet<>();
         if (this.phoneDirectory.containsKey(name)) {
             hs = this.phoneDirectory.get(name);
         }
@@ -18,12 +16,8 @@ public class PhoneDirectory {
         this.phoneDirectory.put(name, hs);
     }
 
-    public HashSet<String> get(String name) {
-        HashSet<String> hs = new HashSet<>();
-        if (this.phoneDirectory.containsKey(name)) {
-            hs = this.phoneDirectory.get(name);
-        }
-        return hs;
+    public Set<String> get(String name) {
+        return this.phoneDirectory.getOrDefault(name, Collections.emptySet());
     }
 
     public Set<String> keySet() {

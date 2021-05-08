@@ -20,13 +20,12 @@ public class LessonApp {
         System.out.println("Массив уникальных слов");
         System.out.println(hs);
 
-        HashMap<String,Integer> hm = new HashMap<>();
+        Map<String, Integer> hm = new HashMap<>();
         for (String str : arrList) {
-            hm.put(str, (hm.get(str) == null) ? 1 : hm.get(str) + 1);
+            hm.put(str, hm.getOrDefault(str, 0) + 1);
         }
         System.out.println("Вхождение слов в массив:");
         System.out.println(hm);
-
 
         PhoneDirectory npd = new PhoneDirectory();
 
