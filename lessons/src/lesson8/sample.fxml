@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="sample.Controller">
+    <top>
+        <Label><BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </BorderPane.margin>
+            Новый крутой чат! Telegram отдыхает ))))
+        </Label>
+    </top>
+
+    <left>
+    </left>
+
+    <right>
+        <StackPane>
+            <BorderPane.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </BorderPane.margin>
+           <children>
+               <TextArea fx:id="userList" maxWidth="200">USER LIST</TextArea>
+           </children>
+        </StackPane>
+    </right>
+
+    <center>
+        <StackPane>
+            <BorderPane.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </BorderPane.margin>
+           <children>
+               <TextArea fx:id="mainChat" editable="false" AnchorPane.leftAnchor="1" AnchorPane.topAnchor="1" />
+           </children>
+        </StackPane>
+    </center>
+
+    <bottom>
+        <FlowPane>
+            <BorderPane.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </BorderPane.margin>
+           <children>
+               <TextField fx:id="messageField" maxWidth="800" minWidth="200" prefWidth="800" />
+               <Button fx:id="btn" maxWidth="450" minWidth="50" onAction="#btnClick" prefWidth="100" text="Send" />
+           </children>
+        </FlowPane>
+    </bottom>
+
+</BorderPane>
