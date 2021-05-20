@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -49,7 +53,8 @@
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             </BorderPane.margin>
            <children>
-               <TextArea fx:id="userList" maxWidth="200">USER LIST</TextArea>
+
+            <ListView fx:id="userList" prefHeight="200.0" prefWidth="200.0" onMouseClicked="#userListClicked"/>
            </children>
         </StackPane>
     </right>
@@ -74,7 +79,7 @@
             <HBox prefHeight="27.0" prefWidth="677.0">
                <children>
                    <TextField fx:id="messageField" maxWidth="800" minWidth="200" prefHeight="25.0" prefWidth="609.0" />
-                   <Button fx:id="btnSend" maxWidth="450" minWidth="50" onKeyPressed="#messageFieldPress" onAction="#btnClickSend" prefWidth="100" text="Send" />
+                   <Button fx:id="btnSend" maxWidth="450" minWidth="50" onAction="#btnClickSend" onKeyPressed="#messageFieldPress" prefWidth="100" text="Send" />
                </children>
             </HBox>
            </children>

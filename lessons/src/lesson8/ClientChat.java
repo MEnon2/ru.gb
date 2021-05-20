@@ -2,18 +2,18 @@ package lesson8;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.DataInputStream;
@@ -40,7 +40,7 @@ public class ClientChat extends Application {
     @FXML
     public TextArea mainChat;
     @FXML
-    public TextArea userList;
+    public ListView<String> userList;
     @FXML
     public Button btnAuth;
     @FXML
@@ -86,12 +86,15 @@ public class ClientChat extends Application {
                             } else if (str.startsWith("/clients")) {
                                 String[] parts = str.split("\\s");
                                 if (parts.length > 1) {
-                                    userList.clear();
+                                    userList.setItems(FXCollections.observableArrayList());
+                                    ObservableList<String> items = FXCollections.observableArrayList ();
                                     for (int i = 1; i < parts.length; i++) {
-                                        userList.appendText(parts[i] + "\n");
+                                        items.add(parts[i]);
                                     }
+                                    userList.setItems(items);
                                 } else {
-                                    userList.clear();
+//                                    userList.clear();
+                                    userList.setItems(FXCollections.observableArrayList());
                                 }
                                 continue;
                             } else if (str.startsWith("/authok")) {
@@ -158,7 +161,7 @@ public class ClientChat extends Application {
     }
 
     public void btnClickSend(ActionEvent actionEvent) {
-        messageField.clear();
+
 
         try {
             dos.writeUTF(messageField.getText());
@@ -166,6 +169,7 @@ public class ClientChat extends Application {
             System.out.println("Произошло исключение на клиенте при записи в поток.");
             ioException.printStackTrace();
         }
+        messageField.clear();
     }
 
     public void btnClickAuth(ActionEvent actionEvent) {
@@ -177,7 +181,7 @@ public class ClientChat extends Application {
                     loginField.setVisible(true);
                     passField.setVisible(true);
                     mainChat.clear();
-                    userList.clear();
+                    userList.setItems(FXCollections.observableArrayList());
                     labelNick.setText("");
                     btnAuth.setText(ChatConstants.AUTH_TEXT);
                 }
@@ -219,5 +223,10 @@ public class ClientChat extends Application {
         }
     }
 
+    public void userListClicked(MouseEvent event) {
+
+        String messageText = messageField.getText().replaceAll("/" + userList.getSelectionModel().getSelectedItem() + " ", "");
+        messageField.setText("/" + userList.getSelectionModel().getSelectedItem() + " " + messageText);
+    }
 
 }

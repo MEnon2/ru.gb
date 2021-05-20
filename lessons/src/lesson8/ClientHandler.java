@@ -80,6 +80,10 @@ public class ClientHandler {
             } else if (strFromClient.equals(ChatConstants.LOGOUT_COMMAND)) {
                 myServer.broadcastMsg(name + " вышел из чата");
                 myServer.unsubscribe(this);
+            } else if (strFromClient.equals(ChatConstants.LOGOUT_COMMAND)) {
+                myServer.broadcastMsg(name + " вышел из чата");
+                myServer.unsubscribe(this);
+
             } else {
                 myServer.broadcastMsg(name + ": " + strFromClient);
             }
