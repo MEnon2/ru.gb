@@ -1,5 +1,7 @@
 package lesson8;
 
+import java.util.Optional;
+
 public interface AuthService {
 
     void start();

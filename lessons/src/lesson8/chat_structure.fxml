@@ -47,9 +47,11 @@
            <children>
             <HBox prefHeight="27.0" prefWidth="677.0">
                <children>
-                     <Button fx:id="btnAuth" maxWidth="450" minWidth="50" onAction="#btnClickAuth" prefWidth="100" text="Auth" />
-                     <TextField fx:id="messageField" maxWidth="800" minWidth="200" prefHeight="25.0" prefWidth="575.0" />
-                  <Button fx:id="btnSend" maxWidth="450" minWidth="50" onAction="#btnClickSend" prefWidth="100" text="Send" />
+                   <TextField fx:id="loginField" maxWidth="80" minWidth="50" prefHeight="25.0" prefWidth="575.0" />
+                   <TextField fx:id="passField" maxWidth="80" minWidth="50" prefHeight="25.0" prefWidth="575.0" />
+                   <Button fx:id="btnAuth" maxWidth="450" minWidth="50" onAction="#btnClickAuth" prefWidth="100" text="Auth" />
+                   <TextField fx:id="messageField" maxWidth="800" minWidth="200" prefHeight="25.0" prefWidth="575.0" />
+                   <Button fx:id="btnSend" maxWidth="450" minWidth="50" onAction="#btnClickSend" prefWidth="100" text="Send" />
                </children>
             </HBox>
            </children>

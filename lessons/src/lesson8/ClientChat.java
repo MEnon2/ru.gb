@@ -28,6 +28,11 @@ public class ClientChat extends Application {
     @FXML
     public TextField messageField;
     @FXML
+    public TextField loginField;
+    @FXML
+    public TextField passField;
+
+    @FXML
     public TextArea mainChat;
 
     public static void main(String[] args) {
@@ -154,6 +159,14 @@ public class ClientChat extends Application {
 
     public void btnClickAuth(ActionEvent actionEvent) {
         createConnection();
+        try {
+            dos.writeUTF("/auth " + loginField.getText() + " " + passField.getText());
+            loginField.clear();
+            passField.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void sendMessage() {

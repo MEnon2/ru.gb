@@ -2,6 +2,7 @@ package lesson8;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class BaseAuthService implements AuthService {
     @Override
@@ -16,7 +17,11 @@ public class BaseAuthService implements AuthService {
 
     @Override
     public String getNickFromLoginAndPass(String login, String pass) {
-        return entries.stream().filter(e -> e.login.equals(login)).filter(e -> e.pass.equals(pass)).findFirst().orElse(new Entry("", "", "")).nick;
+        String emptyString = "";
+        if(login.isEmpty() || pass.isEmpty()) {
+            return emptyString;
+        }
+        return entries.stream().filter(e -> e.login.equals(login)).filter(e -> e.pass.equals(pass)).map(e -> e.nick).findFirst().orElse(emptyString);
     }
 
     private class Entry {
