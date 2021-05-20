@@ -16,12 +16,11 @@ public class BaseAuthService implements AuthService {
     }
 
     @Override
-    public String getNickFromLoginAndPass(String login, String pass) {
-        String emptyString = "";
+    public Optional<String> getNickFromLoginAndPass(String login, String pass) {
         if(login.isEmpty() || pass.isEmpty()) {
-            return emptyString;
+            return Optional.empty();
         }
-        return entries.stream().filter(e -> e.login.equals(login)).filter(e -> e.pass.equals(pass)).map(e -> e.nick).findFirst().orElse(emptyString);
+        return entries.stream().filter(e -> e.login.equals(login)).filter(e -> e.pass.equals(pass)).map(e -> e.nick).findFirst();
     }
 
     private class Entry {

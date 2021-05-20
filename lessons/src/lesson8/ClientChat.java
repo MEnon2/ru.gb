@@ -1,13 +1,19 @@
 package lesson8;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.io.DataInputStream;
@@ -31,28 +37,27 @@ public class ClientChat extends Application {
     public TextField loginField;
     @FXML
     public TextField passField;
-
     @FXML
     public TextArea mainChat;
+    @FXML
+    public TextArea userList;
+    @FXML
+    public Button btnAuth;
+    @FXML
+    public Label labelNick;
 
     public static void main(String[] args) {
-
         launch(args);
-       // new ClientChat();
-    }
-
-    public ClientChat() {
-
-       // createConnection();
 
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("chat_structure.fxml"));
-        primaryStage.setTitle("Чат клиент");
+        primaryStage.setTitle("Сетевой чат на курсе GeekBrains");
         primaryStage.setScene(new Scene(root, 1000, 600));
         primaryStage.show();
+
 
     }
 
@@ -76,15 +81,46 @@ public class ClientChat extends Application {
                             String str = dis.readUTF();
                             if (str.equals("/end")) {
                                 System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
-                                closeConnection(socket, dis, dos);
+                                // closeConnection(socket, dis, dos);
                                 break;
+                            } else if (str.startsWith("/clients")) {
+                                String[] parts = str.split("\\s");
+                                if (parts.length > 1) {
+                                    userList.clear();
+                                    for (int i = 1; i < parts.length; i++) {
+                                        userList.appendText(parts[i] + "\n");
+                                    }
+                                } else {
+                                    userList.clear();
+                                }
+                                continue;
+                            } else if (str.startsWith("/authok")) {
+
+
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        loginField.setVisible(false);
+                                        passField.setVisible(false);
+                                        String[] parts = str.split("\\s");
+                                        if (parts.length > 1) {
+                                            labelNick.setText(parts[1]);
+                                        }
+                                        btnAuth.setText(ChatConstants.EXIT_TEXT);
+                                    }
+                                });
+
+                                continue;
+                            } else {
+
+                                mainChat.appendText(str + "\n");
                             }
-                            System.out.println("Сервер: " + str);
+
 
                         }
                     } catch (IOException ioException) {
                         System.out.println("Произошло исключение на клиенте при чтении из потока.");
-                        closeConnection(socket, dis, dos);
+                        // closeConnection(socket, dis, dos);
                         ioException.printStackTrace();
                     }
                 }
@@ -102,13 +138,13 @@ public class ClientChat extends Application {
                             dos.writeUTF(str);
                             if (str.equals("/end")) {
                                 System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
-                                closeConnection(socket, dis, dos);
+//                                closeConnection(socket, dis, dos);
                                 break;
                             }
                         }
                     } catch (IOException ioException) {
                         System.out.println("Произошло исключение на клиенте при записи в поток.");
-                        closeConnection(socket, dis, dos);
+//                        closeConnection(socket, dis, dos);
                         ioException.printStackTrace();
                     }
                 }
@@ -121,36 +157,11 @@ public class ClientChat extends Application {
         }
     }
 
-    private void closeConnection(Socket socket, DataInputStream dis, DataOutputStream dos) {
-        try {
-            dis.close();
-            System.out.println("dis close");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        try {
-            dos.close();
-            System.out.println("dos close");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        try {
-            socket.close();
-            System.out.println("socket close");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-    }
-
     public void btnClickSend(ActionEvent actionEvent) {
-        mainChat.setText(mainChat.getText() + messageField.getText() + "\n");
         messageField.clear();
 
         try {
-           // while (true) {
-                dos.writeUTF(mainChat.getText());
-          //  }
+            dos.writeUTF(messageField.getText());
         } catch (IOException ioException) {
             System.out.println("Произошло исключение на клиенте при записи в поток.");
             ioException.printStackTrace();
@@ -158,6 +169,29 @@ public class ClientChat extends Application {
     }
 
     public void btnClickAuth(ActionEvent actionEvent) {
+        if (btnAuth.getText().equals(ChatConstants.EXIT_TEXT)) {
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    loginField.setVisible(true);
+                    passField.setVisible(true);
+                    mainChat.clear();
+                    userList.clear();
+                    labelNick.setText("");
+                    btnAuth.setText(ChatConstants.AUTH_TEXT);
+                }
+            });
+
+            try {
+                dos.writeUTF(ChatConstants.LOGOUT_COMMAND);
+            } catch (IOException ioException) {
+                System.out.println("Произошло исключение на клиенте при записи в поток.");
+                ioException.printStackTrace();
+            }
+
+        }
+
         createConnection();
         try {
             dos.writeUTF("/auth " + loginField.getText() + " " + passField.getText());
@@ -167,18 +201,23 @@ public class ClientChat extends Application {
             e.printStackTrace();
         }
 
+
+
     }
 
-    public void sendMessage() {
-//        if (!msgInputField.getText().trim().isEmpty()) {
-//            try {
-//                out.writeUTF(msgInputField.getText());
-//                msgInputField.setText("");
-//                msgInputField.grabFocus();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                JOptionPane.showMessageDialog(null, "Ошибка отправки сообщения");
-//            }
-//        }
+    @FXML
+    private void messageFieldPress(KeyEvent event) {
+        if (event.getCode().equals(KeyCode.ENTER)) {
+            try {
+
+                dos.writeUTF(messageField.getText());
+                messageField.clear();
+            } catch (IOException ioException) {
+                System.out.println("Произошло исключение на клиенте при записи в поток.");
+                ioException.printStackTrace();
+            }
+        }
     }
+
+
 }

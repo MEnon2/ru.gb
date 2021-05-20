@@ -7,7 +7,9 @@ public class AuthTest {
         AuthService authService = new BaseAuthService();
         authService.start();
 
-        String nick = authService.getNickFromLoginAndPass("login1", "pass1");
-        System.out.println(nick);
+        Optional<String> oNick = authService.getNickFromLoginAndPass("login1", "pass1");
+        if(oNick.isPresent()) {
+            System.out.println(oNick.get());
+        }
     }
 }

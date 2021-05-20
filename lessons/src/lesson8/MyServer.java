@@ -51,8 +51,7 @@ public class MyServer {
         }
     }
 
-    public synchronized void sendMsgToClient(ClientHandler from, String nickTo,
-                                             String msg) {
+    public synchronized void sendMsgToClient(ClientHandler from, String nickTo, String msg) {
         for (ClientHandler o : clients) {
             if (o.getName().equals(nickTo)) {
                 o.sendMsg("от " + from.getName() + ": " + msg);

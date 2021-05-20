@@ -8,7 +8,7 @@ public interface AuthService {
 
     void stop();
 
-    String getNickFromLoginAndPass(String login, String pass);
+    Optional<String> getNickFromLoginAndPass(String login, String pass);
 
 
 
