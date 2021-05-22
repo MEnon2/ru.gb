@@ -4,7 +4,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ClientHandler {
     private MyServer myServer;
@@ -45,7 +48,7 @@ public class ClientHandler {
             if (str.startsWith("/auth")) {
                 String[] parts = str.split("\\s");
 
-                if (parts.length == 1) {
+                if (parts.length < 3) {
                     sendMsg("Неверные логин/пароль");
                     continue;
                 }
@@ -74,15 +77,41 @@ public class ClientHandler {
         while (true) {
             String strFromClient = in.readUTF();
             System.out.println("от " + name + ": " + strFromClient);
-            if (strFromClient.equals("/end")) {
+            if (strFromClient.equals("/end") || strFromClient.equals(ChatConstants.LOGOUT_COMMAND)) {
+                //this.sendMsg("/end");
+                myServer.broadcastMsg(name + " вышел из чата");
+                myServer.unsubscribe(this);
 
                 return;
-            } else if (strFromClient.equals(ChatConstants.LOGOUT_COMMAND)) {
-                myServer.broadcastMsg(name + " вышел из чата");
-                myServer.unsubscribe(this);
-            } else if (strFromClient.equals(ChatConstants.LOGOUT_COMMAND)) {
-                myServer.broadcastMsg(name + " вышел из чата");
-                myServer.unsubscribe(this);
+            } else if (strFromClient.startsWith(ChatConstants.SEND_TO_LIST)) {
+
+
+                String[] parts = strFromClient.split("\\s");
+
+                if (parts.length == 1) {
+                    continue;
+                }
+
+                List<String> nickTo = new ArrayList<>();
+                List<String> messagePartsToClient = new ArrayList<>();
+
+                for (int i = 1; i < parts.length; i++) {
+                    if (parts[i].startsWith("/")) {
+                        String[] sNick = parts[i].split("/");
+                        if (myServer.isNickBusy(sNick[1])) {
+                            nickTo.add(sNick[1]);
+                        }
+                    } else {
+                        messagePartsToClient.add(parts[i]);
+                    }
+                }
+
+                String messageToClient = messagePartsToClient.stream()
+                        .map(Object::toString)
+                        .collect(Collectors.joining(" "));
+
+                myServer.sendMsgToClient(this, nickTo, messageToClient);
+
 
             } else {
                 myServer.broadcastMsg(name + ": " + strFromClient);

@@ -65,11 +65,8 @@ public class ClientChat extends Application {
 
 
         try {
-            // Socket socket = new Socket(SERVER_ADDR, SERVER_PORT);
             socket = new Socket(SERVER_ADDR, SERVER_PORT);
-            System.out.println("socket connected123");
-            //String sss = mainChat.getText();
-//            System.out.println(mainChat.getText().toString());
+            System.out.println("Соединение с сервером установлено");
             dis = new DataInputStream(socket.getInputStream());
             dos = new DataOutputStream(socket.getOutputStream());
 
@@ -81,12 +78,11 @@ public class ClientChat extends Application {
                             String str = dis.readUTF();
                             if (str.equals("/end")) {
                                 System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
-                                // closeConnection(socket, dis, dos);
                                 break;
                             } else if (str.startsWith("/clients")) {
                                 String[] parts = str.split("\\s");
                                 if (parts.length > 1) {
-                                    userList.setItems(FXCollections.observableArrayList());
+                                    //userList.setItems(FXCollections.observableArrayList());
                                     ObservableList<String> items = FXCollections.observableArrayList ();
                                     for (int i = 1; i < parts.length; i++) {
                                         items.add(parts[i]);
@@ -98,7 +94,6 @@ public class ClientChat extends Application {
                                 }
                                 continue;
                             } else if (str.startsWith("/authok")) {
-
 
                                 Platform.runLater(new Runnable() {
                                     @Override
@@ -173,6 +168,11 @@ public class ClientChat extends Application {
     }
 
     public void btnClickAuth(ActionEvent actionEvent) {
+
+        if(socket == null) {
+            createConnection();
+        }
+
         if (btnAuth.getText().equals(ChatConstants.EXIT_TEXT)) {
 
             Platform.runLater(new Runnable() {
@@ -189,23 +189,24 @@ public class ClientChat extends Application {
 
             try {
                 dos.writeUTF(ChatConstants.LOGOUT_COMMAND);
+                closeConnection();
             } catch (IOException ioException) {
                 System.out.println("Произошло исключение на клиенте при записи в поток.");
                 ioException.printStackTrace();
             }
 
+        } else {
+
+
+            try {
+                dos.writeUTF("/auth " + loginField.getText() + " " + passField.getText());
+                loginField.clear();
+                passField.clear();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
-
-        createConnection();
-        try {
-            dos.writeUTF("/auth " + loginField.getText() + " " + passField.getText());
-            loginField.clear();
-            passField.clear();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
 
     }
 
@@ -225,8 +226,29 @@ public class ClientChat extends Application {
 
     public void userListClicked(MouseEvent event) {
 
-        String messageText = messageField.getText().replaceAll("/" + userList.getSelectionModel().getSelectedItem() + " ", "");
-        messageField.setText("/" + userList.getSelectionModel().getSelectedItem() + " " + messageText);
+        String messageText = messageField.getText().replaceAll(ChatConstants.SEND_TO_LIST + " ", "");
+        messageText = messageText.replaceAll("/" + userList.getSelectionModel().getSelectedItem() + " ", "");
+        messageField.setText(ChatConstants.SEND_TO_LIST + " /" + userList.getSelectionModel().getSelectedItem() + " " + messageText);
     }
 
+    public void closeConnection() {
+        try {
+            dis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            dos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        socket = null;
+        dis = null;
+        dos = null;
+    }
 }
