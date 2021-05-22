@@ -31,6 +31,8 @@ public class ClientHandler {
                 try {
                     authentication();
                     readMessages();
+                } catch (ExceptionTimeout ex) {
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -60,8 +62,6 @@ public class ClientHandler {
                         name = nick;
                         myServer.subscribe(this);
                         myServer.broadcastMsg(name + " зашел в чат");
-
-
                         return;
                     } else {
                         sendMsg("Учетная запись уже используется");
@@ -69,6 +69,8 @@ public class ClientHandler {
                 } else {
                     sendMsg("Неверные логин/пароль");
                 }
+            } else if (str.startsWith(ChatConstants.STOP_WORD)) {
+                throw new ExceptionTimeout();
             }
         }
     }
@@ -77,9 +79,9 @@ public class ClientHandler {
         while (true) {
             String strFromClient = in.readUTF();
             System.out.println("от " + name + ": " + strFromClient);
-            if (strFromClient.equals(ChatConstants.STOP_WORD) || strFromClient.equals(ChatConstants.LOGOUT_COMMAND)) {
+            if (strFromClient.equals(ChatConstants.STOP_WORD)) {
                 //this.sendMsg("/end");
-                this.out.writeUTF(ChatConstants.STOP_WORD);
+                out.writeUTF(ChatConstants.STOP_WORD);
                 myServer.broadcastMsg(name + " вышел из чата");
                 myServer.unsubscribe(this);
 

@@ -56,7 +56,6 @@ public class MyServer {
     }
 
     public synchronized void sendMsgToClient(ClientHandler from, List<String> nickTo, String msg) {
-
         List<ClientHandler> listClients = clients.stream().filter(e -> nickTo.contains(e.getName())).collect(Collectors.toList());
 
         for (ClientHandler ls : listClients) {
@@ -66,10 +65,8 @@ public class MyServer {
     }
 
     public synchronized void broadcastClientsList() {
-
         String listClients = ChatConstants.CLIENTS_LIST + " " + clients.stream().map(e -> e.getName()).collect(Collectors.joining(" "));
         broadcastMsg(listClients);
-
     }
 
     public synchronized void unsubscribe(ClientHandler o) {

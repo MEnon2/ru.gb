@@ -28,7 +28,6 @@ public class BaseAuthService implements AuthService {
         private String pass;
         private String nick;
 
-
         public Entry(String login, String pass, String nick) {
             this.login = login;
             this.pass = pass;

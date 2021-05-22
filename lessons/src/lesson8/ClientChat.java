@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,20 +15,24 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import java.lang.Thread;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Scanner;
 
-public class ClientChat extends Application {
+
+public class ClientChat extends Application{
 
     private static final String SERVER_ADDR = "localhost";
     private static final int SERVER_PORT = 8189;
-    private Socket socket;
-    private DataInputStream dis;
-    private DataOutputStream dos;
-
+//    private Socket socket;
+//    private DataInputStream dataInputStream;
+//    private DataOutputStream dataOutputStream;
+    private final Socket socket = new Socket(SERVER_ADDR, SERVER_PORT);
+    private final DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+    private final DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
     @FXML
     public TextField messageField;
@@ -46,9 +49,11 @@ public class ClientChat extends Application {
     @FXML
     public Label labelNick;
 
+    public ClientChat() throws IOException {
+    }
+
     public static void main(String[] args) {
         launch(args);
-
     }
 
     @Override
@@ -58,99 +63,105 @@ public class ClientChat extends Application {
         primaryStage.setScene(new Scene(root, 1000, 600));
         primaryStage.show();
 
-    }
 
-    @Override
-    public void stop() {
-        if (socket != null) {
-            if (socket.isConnected()) {
-                closeConnection();
-            }
-        }
-     }
+    }
 
     public void createConnection() {
 
-
-        try {
-            socket = new Socket(SERVER_ADDR, SERVER_PORT);
-            System.out.println("Соединение с сервером установлено");
-            dis = new DataInputStream(socket.getInputStream());
-            dos = new DataOutputStream(socket.getOutputStream());
-
-            Thread thread_read = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            String str = dis.readUTF();
-                            if (str.equals(ChatConstants.STOP_WORD) || str.equals(ChatConstants.LOGOUT_COMMAND)) {
-                                System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
-                                break;
-                            } else if (str.startsWith(ChatConstants.CLIENTS_LIST)) {
-                                String[] parts = str.split("\\s");
-                                if (parts.length > 1) {
-                                    userList.setItems(FXCollections.observableArrayList());
-                                    ObservableList<String> items = FXCollections.observableArrayList ();
-                                    for (int i = 1; i < parts.length; i++) {
-                                        items.add(parts[i]);
-                                    }
-                                    userList.setItems(items);
-                                } else {
-
-                                    userList.setItems(FXCollections.observableArrayList());
+        Thread thread_read = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (true) {
+                        String str =dataInputStream.readUTF();
+                        if (str.equals(ChatConstants.STOP_WORD)) {
+                            labelNick.setText("");
+                            System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
+                            closeConnection();
+                            return;
+                        } else if (str.startsWith(ChatConstants.CLIENTS_LIST)) {
+                            String[] parts = str.split("\\s");
+                            if (parts.length > 1) {
+                                userList.setItems(FXCollections.observableArrayList());
+                                ObservableList<String> items = FXCollections.observableArrayList();
+                                for (int i = 1; i < parts.length; i++) {
+                                    items.add(parts[i]);
                                 }
-                                continue;
-                            } else if (str.startsWith(ChatConstants.AUTH_OK)) {
-
-                                Platform.runLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        loginField.setVisible(false);
-                                        passField.setVisible(false);
-                                        String[] parts = str.split("\\s");
-                                        if (parts.length > 1) {
-                                            labelNick.setText(parts[1]);
-                                        }
-                                        btnAuth.setText(ChatConstants.EXIT_TEXT);
-                                    }
-                                });
-
-                                continue;
+                                userList.setItems(items);
                             } else {
 
+                                userList.setItems(FXCollections.observableArrayList());
+                            }
+                            continue;
+                        } else if (str.startsWith(ChatConstants.AUTH_OK)) {
+
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loginField.setVisible(false);
+                                    passField.setVisible(false);
+                                    String[] parts = str.split("\\s");
+                                    if (parts.length > 1) {
+                                        labelNick.setText(parts[1]);
+                                    }
+                                    btnAuth.setText(ChatConstants.EXIT_TEXT);
+                                }
+                            });
+                            continue;
+                        } else {
+                            if (mainChat != null) {
                                 mainChat.appendText(str + "\n");
                             }
-
-
                         }
-                    } catch (IOException ioException) {
-                        System.out.println("Произошло исключение на клиенте при чтении из потока.");
-                        ioException.printStackTrace();
                     }
+                } catch (IOException ioException) {
+                    System.out.println("Произошло исключение на клиенте при чтении из потока.");
+                    ioException.printStackTrace();
                 }
-            });
-            thread_read.start();
+            }
+        });
+        thread_read.start();
 
-        } catch (Exception ex) {
-            System.out.println("Произошло исключение на клиенте");
-            ex.printStackTrace();
-        }
+        Thread thread_timeConnect = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(120000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (labelNick.getText().isEmpty()) {
+//                    if (mainChat != null) {
+                        mainChat.appendText("Вышло время для авторизации." + "\n");
+//                    }
+                    sendMessageToServer(ChatConstants.STOP_WORD);
+                }
+            }
+        });
+        thread_timeConnect.start();
+
     }
 
-    public void btnClickSend(ActionEvent actionEvent) {
+    public void sendMessageToServer(String msg) {
         try {
-            dos.writeUTF(messageField.getText());
+           dataOutputStream.writeUTF(msg);
         } catch (IOException ioException) {
             System.out.println("Произошло исключение на клиенте при записи в поток.");
             ioException.printStackTrace();
         }
+    }
+
+    public void btnClickSend(ActionEvent actionEvent) {
+        sendMessageToServer(messageField.getText());
         messageField.clear();
     }
 
     public void btnClickAuth(ActionEvent actionEvent) {
 
-        if(socket == null) {
+        if (socket.isClosed()) {
+            return;
+        }else {
             createConnection();
         }
 
@@ -168,45 +179,24 @@ public class ClientChat extends Application {
                 }
             });
 
-            try {
-                dos.writeUTF(ChatConstants.LOGOUT_COMMAND);
-                closeConnection();
-            } catch (IOException ioException) {
-                System.out.println("Произошло исключение на клиенте при записи в поток.");
-                ioException.printStackTrace();
-            }
+            sendMessageToServer(ChatConstants.STOP_WORD);
 
         } else {
-
-
-            try {
-                dos.writeUTF(ChatConstants.AUTH_COMMAND + " " + loginField.getText() + " " + passField.getText());
-                loginField.clear();
-                passField.clear();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            sendMessageToServer(ChatConstants.AUTH_COMMAND + " " + loginField.getText() + " " + passField.getText());
+            loginField.clear();
+            passField.clear();
         }
-
     }
 
     @FXML
     private void messageFieldPress(KeyEvent event) {
         if (event.getCode().equals(KeyCode.ENTER)) {
-            try {
-
-                dos.writeUTF(messageField.getText());
-                messageField.clear();
-            } catch (IOException ioException) {
-                System.out.println("Произошло исключение на клиенте при записи в поток.");
-                ioException.printStackTrace();
-            }
+            //(messageField.getText());
+            messageField.clear();
         }
     }
 
     public void userListClicked(MouseEvent event) {
-
         String messageText = messageField.getText().replaceAll(ChatConstants.SEND_TO_LIST + " ", "");
         messageText = messageText.replaceAll("/" + userList.getSelectionModel().getSelectedItem() + " ", "");
         messageField.setText(ChatConstants.SEND_TO_LIST + " /" + userList.getSelectionModel().getSelectedItem() + " " + messageText);
@@ -214,12 +204,12 @@ public class ClientChat extends Application {
 
     public void closeConnection() {
         try {
-            dis.close();
+            dataInputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            dos.close();
+            dataOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
