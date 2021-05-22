@@ -26,7 +26,7 @@ public class ClientChat extends Application {
 
     private static final String SERVER_ADDR = "localhost";
     private static final int SERVER_PORT = 8189;
-    private Socket socket = null;
+    private Socket socket;
     private DataInputStream dis;
     private DataOutputStream dos;
 
@@ -58,8 +58,16 @@ public class ClientChat extends Application {
         primaryStage.setScene(new Scene(root, 1000, 600));
         primaryStage.show();
 
-
     }
+
+    @Override
+    public void stop() {
+        if (socket != null) {
+            if (socket.isConnected()) {
+                closeConnection();
+            }
+        }
+     }
 
     public void createConnection() {
 
@@ -76,24 +84,24 @@ public class ClientChat extends Application {
                     try {
                         while (true) {
                             String str = dis.readUTF();
-                            if (str.equals("/end")) {
+                            if (str.equals(ChatConstants.STOP_WORD) || str.equals(ChatConstants.LOGOUT_COMMAND)) {
                                 System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
                                 break;
-                            } else if (str.startsWith("/clients")) {
+                            } else if (str.startsWith(ChatConstants.CLIENTS_LIST)) {
                                 String[] parts = str.split("\\s");
                                 if (parts.length > 1) {
-                                    //userList.setItems(FXCollections.observableArrayList());
+                                    userList.setItems(FXCollections.observableArrayList());
                                     ObservableList<String> items = FXCollections.observableArrayList ();
                                     for (int i = 1; i < parts.length; i++) {
                                         items.add(parts[i]);
                                     }
                                     userList.setItems(items);
                                 } else {
-//                                    userList.clear();
+
                                     userList.setItems(FXCollections.observableArrayList());
                                 }
                                 continue;
-                            } else if (str.startsWith("/authok")) {
+                            } else if (str.startsWith(ChatConstants.AUTH_OK)) {
 
                                 Platform.runLater(new Runnable() {
                                     @Override
@@ -118,36 +126,11 @@ public class ClientChat extends Application {
                         }
                     } catch (IOException ioException) {
                         System.out.println("Произошло исключение на клиенте при чтении из потока.");
-                        // closeConnection(socket, dis, dos);
                         ioException.printStackTrace();
                     }
                 }
             });
             thread_read.start();
-
-            Thread thread_write = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-//                            System.out.print(">");
-                            Scanner scanner = new Scanner(System.in);
-                            String str = scanner.nextLine();
-                            dos.writeUTF(str);
-                            if (str.equals("/end")) {
-                                System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
-//                                closeConnection(socket, dis, dos);
-                                break;
-                            }
-                        }
-                    } catch (IOException ioException) {
-                        System.out.println("Произошло исключение на клиенте при записи в поток.");
-//                        closeConnection(socket, dis, dos);
-                        ioException.printStackTrace();
-                    }
-                }
-            });
-            thread_write.start();
 
         } catch (Exception ex) {
             System.out.println("Произошло исключение на клиенте");
@@ -156,8 +139,6 @@ public class ClientChat extends Application {
     }
 
     public void btnClickSend(ActionEvent actionEvent) {
-
-
         try {
             dos.writeUTF(messageField.getText());
         } catch (IOException ioException) {
@@ -199,7 +180,7 @@ public class ClientChat extends Application {
 
 
             try {
-                dos.writeUTF("/auth " + loginField.getText() + " " + passField.getText());
+                dos.writeUTF(ChatConstants.AUTH_COMMAND + " " + loginField.getText() + " " + passField.getText());
                 loginField.clear();
                 passField.clear();
             } catch (Exception e) {
@@ -247,8 +228,6 @@ public class ClientChat extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        socket = null;
-        dis = null;
-        dos = null;
+
     }
 }

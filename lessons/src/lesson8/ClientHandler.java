@@ -45,7 +45,7 @@ public class ClientHandler {
     public void authentication() throws IOException {
         while (true) {
             String str = in.readUTF();
-            if (str.startsWith("/auth")) {
+            if (str.startsWith(ChatConstants.AUTH_COMMAND)) {
                 String[] parts = str.split("\\s");
 
                 if (parts.length < 3) {
@@ -56,7 +56,7 @@ public class ClientHandler {
                 if (oNick.isPresent()) {
                     String nick = oNick.get();
                     if (!myServer.isNickBusy(nick)) {
-                        sendMsg("/authok " + nick);
+                        sendMsg(ChatConstants.AUTH_OK + " " + nick);
                         name = nick;
                         myServer.subscribe(this);
                         myServer.broadcastMsg(name + " зашел в чат");
@@ -77,10 +77,12 @@ public class ClientHandler {
         while (true) {
             String strFromClient = in.readUTF();
             System.out.println("от " + name + ": " + strFromClient);
-            if (strFromClient.equals("/end") || strFromClient.equals(ChatConstants.LOGOUT_COMMAND)) {
+            if (strFromClient.equals(ChatConstants.STOP_WORD) || strFromClient.equals(ChatConstants.LOGOUT_COMMAND)) {
                 //this.sendMsg("/end");
+                this.out.writeUTF(ChatConstants.STOP_WORD);
                 myServer.broadcastMsg(name + " вышел из чата");
                 myServer.unsubscribe(this);
+
 
                 return;
             } else if (strFromClient.startsWith(ChatConstants.SEND_TO_LIST)) {

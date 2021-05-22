@@ -66,11 +66,10 @@ public class MyServer {
     }
 
     public synchronized void broadcastClientsList() {
-        StringBuilder sb = new StringBuilder("/clients ");
-        for (ClientHandler o : clients) {
-            sb.append(o.getName() + " ");
-        }
-        broadcastMsg(sb.toString());
+
+        String listClients = ChatConstants.CLIENTS_LIST + " " + clients.stream().map(e -> e.getName()).collect(Collectors.joining(" "));
+        broadcastMsg(listClients);
+
     }
 
     public synchronized void unsubscribe(ClientHandler o) {
