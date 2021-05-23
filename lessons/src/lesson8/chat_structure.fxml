@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
+<?import javafx.scene.paint.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -30,10 +32,13 @@
                             </BorderPane.margin>
                             Новый крутой чат! Telegram отдыхает ))))
                         </Label>
-                        <Label fx:id="labelNick" prefHeight="17.0" prefWidth="125.0" textAlignment="RIGHT">
+                        <Label fx:id="labelNick" prefHeight="17.0" prefWidth="125.0" textAlignment="CENTER" textFill="#0606dd">
                             <BorderPane.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                             </BorderPane.margin>
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
                         </Label>
                         <TextField fx:id="loginField" maxWidth="100.0" minWidth="50" prefHeight="25.0" prefWidth="100.0" />
                         <TextField fx:id="passField" maxWidth="100.0" minWidth="50" prefHeight="25.0" prefWidth="100.0" />
@@ -54,7 +59,7 @@
             </BorderPane.margin>
            <children>
 
-            <ListView fx:id="userList" prefHeight="200.0" prefWidth="200.0" onMouseClicked="#userListClicked"/>
+            <ListView fx:id="userList" onMouseClicked="#userListClicked" prefHeight="200.0" prefWidth="200.0" />
            </children>
         </StackPane>
     </right>
@@ -78,7 +83,7 @@
            <children>
             <HBox prefHeight="27.0" prefWidth="677.0">
                <children>
-                   <TextField fx:id="messageField" maxWidth="800" minWidth="200" prefHeight="25.0" prefWidth="609.0" />
+                   <TextField fx:id="messageField" maxWidth="800" minWidth="200" onKeyPressed="#messageFieldPress" prefHeight="25.0" prefWidth="609.0" />
                    <Button fx:id="btnSend" maxWidth="450" minWidth="50" onAction="#btnClickSend" onKeyPressed="#messageFieldPress" prefWidth="100" text="Send" />
                </children>
             </HBox>

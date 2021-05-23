@@ -80,25 +80,17 @@ public class ClientHandler {
             String strFromClient = in.readUTF();
             System.out.println("от " + name + ": " + strFromClient);
             if (strFromClient.equals(ChatConstants.STOP_WORD)) {
-                //this.sendMsg("/end");
-                out.writeUTF(ChatConstants.STOP_WORD);
-                myServer.broadcastMsg(name + " вышел из чата");
-                myServer.unsubscribe(this);
-
-
+               // myServer.broadcastMsg(name + " вышел из чата");
+//                myServer.unsubscribe(this);
                 return;
             } else if (strFromClient.startsWith(ChatConstants.SEND_TO_LIST)) {
-
-
                 String[] parts = strFromClient.split("\\s");
-
                 if (parts.length == 1) {
                     continue;
                 }
 
                 List<String> nickTo = new ArrayList<>();
                 List<String> messagePartsToClient = new ArrayList<>();
-
                 for (int i = 1; i < parts.length; i++) {
                     if (parts[i].startsWith("/")) {
                         String[] sNick = parts[i].split("/");

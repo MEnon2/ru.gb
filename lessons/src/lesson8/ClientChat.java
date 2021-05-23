@@ -1,5 +1,6 @@
 package lesson8;
 
+import com.sun.javafx.tk.Toolkit;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -14,6 +15,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.lang.Thread;
 
@@ -23,11 +25,11 @@ import java.io.IOException;
 import java.net.Socket;
 
 
-public class ClientChat extends Application{
+public class ClientChat extends Application {
 
     private static final String SERVER_ADDR = "localhost";
     private static final int SERVER_PORT = 8189;
-//    private Socket socket;
+    //    private Socket socket;
 //    private DataInputStream dataInputStream;
 //    private DataOutputStream dataOutputStream;
     private final Socket socket = new Socket(SERVER_ADDR, SERVER_PORT);
@@ -61,8 +63,8 @@ public class ClientChat extends Application{
         Parent root = FXMLLoader.load(getClass().getResource("chat_structure.fxml"));
         primaryStage.setTitle("Сетевой чат на курсе GeekBrains");
         primaryStage.setScene(new Scene(root, 1000, 600));
-        primaryStage.show();
 
+        primaryStage.show();
 
     }
 
@@ -73,7 +75,7 @@ public class ClientChat extends Application{
             public void run() {
                 try {
                     while (true) {
-                        String str =dataInputStream.readUTF();
+                        String str = dataInputStream.readUTF();
                         if (str.equals(ChatConstants.STOP_WORD)) {
                             labelNick.setText("");
                             System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
@@ -81,18 +83,19 @@ public class ClientChat extends Application{
                             return;
                         } else if (str.startsWith(ChatConstants.CLIENTS_LIST)) {
                             String[] parts = str.split("\\s");
-                            if (parts.length > 1) {
-                                userList.setItems(FXCollections.observableArrayList());
-                                ObservableList<String> items = FXCollections.observableArrayList();
-                                for (int i = 1; i < parts.length; i++) {
-                                    items.add(parts[i]);
-                                }
-                                userList.setItems(items);
-                            } else {
-
-                                userList.setItems(FXCollections.observableArrayList());
+                            ObservableList<String> items = FXCollections.observableArrayList();
+                            for (int i = 1; i < parts.length; i++) {
+                                items.add(parts[i]);
                             }
+
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    userList.setItems(items);
+                                }
+                            });
                             continue;
+
                         } else if (str.startsWith(ChatConstants.AUTH_OK)) {
 
                             Platform.runLater(new Runnable() {
@@ -126,16 +129,21 @@ public class ClientChat extends Application{
             @Override
             public void run() {
                 try {
-                    Thread.sleep(120000);
+                    Thread.sleep(12000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                if (labelNick.getText().isEmpty()) {
-//                    if (mainChat != null) {
-                        mainChat.appendText("Вышло время для авторизации." + "\n");
-//                    }
-                    sendMessageToServer(ChatConstants.STOP_WORD);
+                if (socket.isConnected()) {
+                    if (labelNick.getText().isEmpty()) {
+                        if (mainChat != null) {
+                            mainChat.appendText("Вышло время для авторизации." + "\n");
+                            loginField.setEditable(false);
+                            passField.setEditable(false);
+                            btnAuth.setDisable(true);
+                        }
+                        sendMessageToServer(ChatConstants.STOP_WORD);
+                    }
                 }
             }
         });
@@ -145,7 +153,7 @@ public class ClientChat extends Application{
 
     public void sendMessageToServer(String msg) {
         try {
-           dataOutputStream.writeUTF(msg);
+            dataOutputStream.writeUTF(msg);
         } catch (IOException ioException) {
             System.out.println("Произошло исключение на клиенте при записи в поток.");
             ioException.printStackTrace();
@@ -161,11 +169,12 @@ public class ClientChat extends Application{
 
         if (socket.isClosed()) {
             return;
-        }else {
+        } else {
             createConnection();
         }
 
         if (btnAuth.getText().equals(ChatConstants.EXIT_TEXT)) {
+            sendMessageToServer(ChatConstants.STOP_WORD);
 
             Platform.runLater(new Runnable() {
                 @Override
@@ -178,8 +187,11 @@ public class ClientChat extends Application{
                     btnAuth.setText(ChatConstants.AUTH_TEXT);
                 }
             });
+            closeConnection();
 
-            sendMessageToServer(ChatConstants.STOP_WORD);
+            Stage stage = (Stage) btnAuth.getScene().getWindow();
+            stage.close();
+
 
         } else {
             sendMessageToServer(ChatConstants.AUTH_COMMAND + " " + loginField.getText() + " " + passField.getText());
@@ -191,7 +203,7 @@ public class ClientChat extends Application{
     @FXML
     private void messageFieldPress(KeyEvent event) {
         if (event.getCode().equals(KeyCode.ENTER)) {
-            //(messageField.getText());
+            sendMessageToServer(messageField.getText());
             messageField.clear();
         }
     }
