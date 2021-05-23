@@ -7,8 +7,6 @@ public class ChatConstants {
 
     public static final String AUTH_COMMAND = "/auth";
 
-    public static final String LOGOUT_COMMAND = "/logout";
-
     public static final String AUTH_OK = "/authok";
 
     public static final String STOP_WORD = "/end";
@@ -21,6 +19,5 @@ public class ChatConstants {
 
     public static final String AUTH_TEXT = "AUTH";
 
-    public static final String ENTER_COMMAND = "/enter";
 
 }

@@ -32,7 +32,7 @@ public class ClientHandler {
                     authentication();
                     readMessages();
                 } catch (ExceptionTimeout ex) {
-
+                    System.out.println("Заершим корректно ошибку превышения таймаута.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -80,8 +80,6 @@ public class ClientHandler {
             String strFromClient = in.readUTF();
             System.out.println("от " + name + ": " + strFromClient);
             if (strFromClient.equals(ChatConstants.STOP_WORD)) {
-               // myServer.broadcastMsg(name + " вышел из чата");
-//                myServer.unsubscribe(this);
                 return;
             } else if (strFromClient.startsWith(ChatConstants.SEND_TO_LIST)) {
                 String[] parts = strFromClient.split("\\s");

@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MyServer {
@@ -65,7 +63,7 @@ public class MyServer {
     }
 
     public synchronized void broadcastClientsList() {
-        String listClients = ChatConstants.CLIENTS_LIST + " " + clients.stream().map(e -> e.getName()).collect(Collectors.joining(" "));
+        String listClients = ChatConstants.CLIENTS_LIST + " " + clients.stream().map(ClientHandler::getName).collect(Collectors.joining(" "));
         broadcastMsg(listClients);
     }
 

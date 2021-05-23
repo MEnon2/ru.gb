@@ -1,6 +1,5 @@
 package lesson8;
 
-import com.sun.javafx.tk.Toolkit;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -15,24 +14,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-
 import java.lang.Thread;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 
 
 public class ClientChat extends Application {
 
-    private static final String SERVER_ADDR = "localhost";
-    private static final int SERVER_PORT = 8189;
-    //    private Socket socket;
-//    private DataInputStream dataInputStream;
-//    private DataOutputStream dataOutputStream;
-    private final Socket socket = new Socket(SERVER_ADDR, SERVER_PORT);
+    private final Socket socket = new Socket(ChatConstants.HOST, ChatConstants.PORT);
     private final DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
     private final DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
@@ -63,87 +55,65 @@ public class ClientChat extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("chat_structure.fxml"));
         primaryStage.setTitle("Сетевой чат на курсе GeekBrains");
         primaryStage.setScene(new Scene(root, 1000, 600));
-
         primaryStage.show();
-
     }
 
     public void createConnection() {
 
-        Thread thread_read = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        String str = dataInputStream.readUTF();
-                        if (str.equals(ChatConstants.STOP_WORD)) {
-                            labelNick.setText("");
-                            System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
-                            closeConnection();
-                            return;
-                        } else if (str.startsWith(ChatConstants.CLIENTS_LIST)) {
+        Thread thread_read = new Thread(() -> {
+            try {
+                while (true) {
+                    String str = dataInputStream.readUTF();
+                    if (str.equals(ChatConstants.STOP_WORD)) {
+                        labelNick.setText("");
+                        System.out.println("Пришла команда завершения соединения. Разраываем соединение на клиенте.");
+                        closeConnection();
+                        return;
+                    } else if (str.startsWith(ChatConstants.CLIENTS_LIST)) {
+                        String[] parts = str.split("\\s");
+                        ObservableList<String> items = FXCollections.observableArrayList();
+                        items.addAll(Arrays.asList(parts).subList(1, parts.length));
+
+                        Platform.runLater(() -> userList.setItems(items));
+                    } else if (str.startsWith(ChatConstants.AUTH_OK)) {
+                        Platform.runLater(() -> {
+                            loginField.setVisible(false);
+                            passField.setVisible(false);
                             String[] parts = str.split("\\s");
-                            ObservableList<String> items = FXCollections.observableArrayList();
-                            for (int i = 1; i < parts.length; i++) {
-                                items.add(parts[i]);
+                            if (parts.length > 1) {
+                                labelNick.setText(parts[1]);
                             }
-
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    userList.setItems(items);
-                                }
-                            });
-                            continue;
-
-                        } else if (str.startsWith(ChatConstants.AUTH_OK)) {
-
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    loginField.setVisible(false);
-                                    passField.setVisible(false);
-                                    String[] parts = str.split("\\s");
-                                    if (parts.length > 1) {
-                                        labelNick.setText(parts[1]);
-                                    }
-                                    btnAuth.setText(ChatConstants.EXIT_TEXT);
-                                }
-                            });
-                            continue;
-                        } else {
-                            if (mainChat != null) {
-                                mainChat.appendText(str + "\n");
-                            }
+                            btnAuth.setText(ChatConstants.EXIT_TEXT);
+                        });
+                    } else {
+                        if (mainChat != null) {
+                            mainChat.appendText(str + "\n");
                         }
                     }
-                } catch (IOException ioException) {
-                    System.out.println("Произошло исключение на клиенте при чтении из потока.");
-                    ioException.printStackTrace();
                 }
+            } catch (IOException ioException) {
+                System.out.println("Произошло исключение на клиенте при чтении из потока.");
+                ioException.printStackTrace();
             }
         });
         thread_read.start();
 
-        Thread thread_timeConnect = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(12000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        Thread thread_timeConnect = new Thread(() -> {
+            try {
+                Thread.sleep(12000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-                if (socket.isConnected()) {
-                    if (labelNick.getText().isEmpty()) {
-                        if (mainChat != null) {
-                            mainChat.appendText("Вышло время для авторизации." + "\n");
-                            loginField.setEditable(false);
-                            passField.setEditable(false);
-                            btnAuth.setDisable(true);
-                        }
-                        sendMessageToServer(ChatConstants.STOP_WORD);
+            if (socket.isConnected()) {
+                if (labelNick.getText().isEmpty()) {
+                    if (mainChat != null) {
+                        mainChat.appendText("Вышло время для авторизации." + "\n");
+                        loginField.setEditable(false);
+                        passField.setEditable(false);
+                        btnAuth.setDisable(true);
                     }
+                    sendMessageToServer(ChatConstants.STOP_WORD);
                 }
             }
         });
@@ -176,16 +146,13 @@ public class ClientChat extends Application {
         if (btnAuth.getText().equals(ChatConstants.EXIT_TEXT)) {
             sendMessageToServer(ChatConstants.STOP_WORD);
 
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    loginField.setVisible(true);
-                    passField.setVisible(true);
-                    mainChat.clear();
-                    userList.setItems(FXCollections.observableArrayList());
-                    labelNick.setText("");
-                    btnAuth.setText(ChatConstants.AUTH_TEXT);
-                }
+            Platform.runLater(() -> {
+                loginField.setVisible(true);
+                passField.setVisible(true);
+                mainChat.clear();
+                userList.setItems(FXCollections.observableArrayList());
+                labelNick.setText("");
+                btnAuth.setText(ChatConstants.AUTH_TEXT);
             });
             closeConnection();
 
