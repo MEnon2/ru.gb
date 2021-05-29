@@ -27,12 +27,26 @@ public class ClientHandler {
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
             this.name = "";
+
+            Thread thread_timeConnect = new Thread(() -> {
+                try {
+                    Thread.sleep(120000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (getName().isEmpty()) {
+                    sendMsg(ChatConstants.AUTH_TIMEOUT);
+                    System.out.println("AUTH_TIMEOUT");
+                    closeConnection();
+                }
+            });
+            thread_timeConnect.start();
+
             new Thread(() -> {
                 try {
                     authentication();
                     readMessages();
-                } catch (ExceptionTimeout ex) {
-                    System.out.println("Заершим корректно ошибку превышения таймаута.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -69,8 +83,6 @@ public class ClientHandler {
                 } else {
                     sendMsg("Неверные логин/пароль");
                 }
-            } else if (str.startsWith(ChatConstants.STOP_WORD)) {
-                throw new ExceptionTimeout();
             }
         }
     }

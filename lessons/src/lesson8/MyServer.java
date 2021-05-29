@@ -58,8 +58,8 @@ public class MyServer {
 
         for (ClientHandler ls : listClients) {
             ls.sendMsg("личное сообщение от " + from.getName() + ": " + msg);
-            from.sendMsg("личное сообщение для " + ls.getName() + ": " + msg);
         }
+        from.sendMsg("личное сообщение для " + listClients + ": " + msg);
     }
 
     public synchronized void broadcastClientsList() {

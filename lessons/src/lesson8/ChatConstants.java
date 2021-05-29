@@ -19,5 +19,6 @@ public class ChatConstants {
 
     public static final String AUTH_TEXT = "AUTH";
 
+    public static final String AUTH_TIMEOUT = "/timeout";
 
 }

@@ -75,6 +75,13 @@ public class ClientChat extends Application {
                         items.addAll(Arrays.asList(parts).subList(1, parts.length));
 
                         Platform.runLater(() -> userList.setItems(items));
+                    } else if (str.startsWith(ChatConstants.AUTH_TIMEOUT)) {
+                        if (mainChat != null) {
+                            mainChat.appendText("Вышло время для авторизации." + "\n");
+                            loginField.setEditable(false);
+                            passField.setEditable(false);
+                            btnAuth.setDisable(true);
+                        }
                     } else if (str.startsWith(ChatConstants.AUTH_OK)) {
                         Platform.runLater(() -> {
                             loginField.setVisible(false);
@@ -97,28 +104,6 @@ public class ClientChat extends Application {
             }
         });
         thread_read.start();
-
-        Thread thread_timeConnect = new Thread(() -> {
-            try {
-                Thread.sleep(12000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            if (socket.isConnected()) {
-                if (labelNick.getText().isEmpty()) {
-                    if (mainChat != null) {
-                        mainChat.appendText("Вышло время для авторизации." + "\n");
-                        loginField.setEditable(false);
-                        passField.setEditable(false);
-                        btnAuth.setDisable(true);
-                    }
-                    sendMessageToServer(ChatConstants.STOP_WORD);
-                }
-            }
-        });
-        thread_timeConnect.start();
-
     }
 
     public void sendMessageToServer(String msg) {
