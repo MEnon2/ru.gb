@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class MyServer {
         for (ClientHandler ls : listClients) {
             ls.sendMsg("личное сообщение от " + from.getName() + ": " + msg);
         }
-        from.sendMsg("личное сообщение для " + listClients + ": " + msg);
+        from.sendMsg("личное сообщение для " + Arrays.toString(listClients.stream().map(ClientHandler::getName).toArray()) + ": " + msg);
     }
 
     public synchronized void broadcastClientsList() {
